@@ -85,6 +85,13 @@ test('a interface mostra fontes de referência e disclaimer para spread', () => 
   assert.match(html, /Confira seu emissor antes de confiar no spread/i);
   assert.match(html, /O spread pode mudar por cartão, faixa de cliente e campanha/i);
   assert.match(html, /class="source-chip"/i);
+  assert.match(html, /data-spread="4\.00"[\s\S]*Nubank/i);
+  assert.match(html, /data-spread="5\.25"[\s\S]*C6 Bank/i);
+  assert.match(html, /data-spread="4\.00"[\s\S]*Inter/i);
+  assert.match(html, /data-spread="5\.50"[\s\S]*Itaú/i);
+  assert.match(html, /data-spread="6\.00"[\s\S]*Santander/i);
+  assert.match(html, /data-spread="5\.30"[\s\S]*Bradesco/i);
+  assert.match(html, /data-spread="6\.00"[\s\S]*BTG Pactual/i);
   assert.match(html, /https:\/\/nubank\.com\.br\/contratos\/termos-condicoes-cartao-credito-nubank/i);
   assert.match(html, /https:\/\/www\.c6bank\.com\.br\/cartao-de-credito\//i);
   assert.match(html, /https:\/\/inter\.co\/pra-voce\/cartoes\//i);

@@ -217,10 +217,17 @@
       text-decoration: none;
       font-weight: 700;
       font-size: 0.84rem;
+      cursor: pointer;
     }
 
     .source-chip:hover {
       background: #e2ecff;
+    }
+
+    .source-chip.is-active {
+      background: var(--accent);
+      color: #fff;
+      border-color: var(--accent);
     }
 
     .source-note {
@@ -228,6 +235,17 @@
       color: var(--muted);
       font-size: 0.84rem;
       line-height: 1.45;
+    }
+
+    .source-links {
+      margin-top: 6px;
+      font-size: 0.82rem;
+      color: var(--muted);
+      line-height: 1.5;
+    }
+
+    .source-links a {
+      color: var(--accent);
     }
   </style>
 </head>
@@ -275,15 +293,25 @@
             Confira seu emissor antes de confiar no spread.
           </div>
           <div class="source-chip-list">
-            <a class="source-chip" href="https://nubank.com.br/contratos/termos-condicoes-cartao-credito-nubank" target="_blank" rel="noopener noreferrer">Nubank</a>
-            <a class="source-chip" href="https://www.c6bank.com.br/cartao-de-credito/" target="_blank" rel="noopener noreferrer">C6 Bank</a>
-            <a class="source-chip" href="https://inter.co/pra-voce/cartoes/" target="_blank" rel="noopener noreferrer">Inter</a>
-            <a class="source-chip" href="https://www.itau.com.br/cartoes" target="_blank" rel="noopener noreferrer">Itaú</a>
-            <a class="source-chip" href="https://www.santander.com.br/cartoes" target="_blank" rel="noopener noreferrer">Santander</a>
-            <a class="source-chip" href="https://banco.bradesco/html/classic/produtos-servicos/cartoes/credito.shtm" target="_blank" rel="noopener noreferrer">Bradesco</a>
-            <a class="source-chip" href="https://banking.btgpactual.com/cartao-de-credito" target="_blank" rel="noopener noreferrer">BTG Pactual</a>
+            <button class="source-chip" type="button" data-bank="Nubank" data-spread="4.00">Nubank · 4,00%</button>
+            <button class="source-chip" type="button" data-bank="C6 Bank" data-spread="5.25">C6 Bank · 5,25%</button>
+            <button class="source-chip" type="button" data-bank="Inter" data-spread="4.00">Inter · 4,00%</button>
+            <button class="source-chip" type="button" data-bank="Itaú" data-spread="5.50">Itaú · 5,50%</button>
+            <button class="source-chip" type="button" data-bank="Santander" data-spread="6.00">Santander · 6,00%</button>
+            <button class="source-chip" type="button" data-bank="Bradesco" data-spread="5.30">Bradesco · 5,30%</button>
+            <button class="source-chip" type="button" data-bank="BTG Pactual" data-spread="6.00">BTG Pactual · 6,00%</button>
           </div>
-          <div class="source-note">O spread pode mudar por cartão, faixa de cliente e campanha. Use esses botões como atalho para checar o emissor antes de fechar a conta.</div>
+          <div class="source-note" id="spreadPresetNote">O spread pode mudar por cartão, faixa de cliente e campanha. Clique em um botão para preencher uma estimativa rápida.</div>
+          <div class="source-links">
+            Fontes para conferência manual:
+            <a href="https://nubank.com.br/contratos/termos-condicoes-cartao-credito-nubank" target="_blank" rel="noopener noreferrer">Nubank</a>,
+            <a href="https://www.c6bank.com.br/cartao-de-credito/" target="_blank" rel="noopener noreferrer">C6 Bank</a>,
+            <a href="https://inter.co/pra-voce/cartoes/" target="_blank" rel="noopener noreferrer">Inter</a>,
+            <a href="https://www.itau.com.br/cartoes" target="_blank" rel="noopener noreferrer">Itaú</a>,
+            <a href="https://www.santander.com.br/cartoes" target="_blank" rel="noopener noreferrer">Santander</a>,
+            <a href="https://banco.bradesco/html/classic/produtos-servicos/cartoes/credito.shtm" target="_blank" rel="noopener noreferrer">Bradesco</a>,
+            <a href="https://banking.btgpactual.com/cartao-de-credito" target="_blank" rel="noopener noreferrer">BTG Pactual</a>.
+          </div>
         </div>
 
         <div class="field">
@@ -353,8 +381,11 @@
     };
 
     const exchangeRateInput = document.getElementById('exchangeRate');
+    const spreadInput = document.getElementById('spreadPct');
     const fetchRateButton = document.getElementById('fetchRateButton');
     const quoteStatus = document.getElementById('quoteStatus');
+    const spreadPresetNote = document.getElementById('spreadPresetNote');
+    const spreadPresetButtons = Array.from(document.querySelectorAll('.source-chip'));
 
     function readForm() {
       const values = {};
@@ -378,6 +409,16 @@
 
     function setQuoteStatus(message) {
       quoteStatus.textContent = message;
+    }
+
+    function applySpreadPreset(button) {
+      for (const chip of spreadPresetButtons) {
+        chip.classList.toggle('is-active', chip === button);
+      }
+
+      spreadInput.value = button.dataset.spread;
+      render();
+      spreadPresetNote.textContent = `${button.dataset.bank}: estimativa rápida de spread em ${button.dataset.spread.replace('.', ',')}%. Confira no emissor antes de usar como valor final.`;
     }
 
     async function fetchLatestRate() {
@@ -409,6 +450,10 @@
 
     for (const field of fields) {
       document.getElementById(field).addEventListener('input', render);
+    }
+
+    for (const button of spreadPresetButtons) {
+      button.addEventListener('click', () => applySpreadPreset(button));
     }
 
     fetchRateButton.addEventListener('click', fetchLatestRate);
