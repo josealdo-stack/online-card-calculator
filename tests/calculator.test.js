@@ -86,6 +86,10 @@ test('a interface mostra fontes de referência e disclaimer para spread', () => 
   assert.match(html, /https:\/\/nubank\.com\.br\/contratos\/termos-condicoes-cartao-credito-nubank/i);
   assert.match(html, /https:\/\/www\.c6bank\.com\.br\/cartao-de-credito\//i);
   assert.match(html, /https:\/\/inter\.co\/pra-voce\/cartoes\//i);
+  assert.match(html, /https:\/\/www\.itau\.com\.br\/cartoes/i);
+  assert.match(html, /https:\/\/www\.santander\.com\.br\/cartoes/i);
+  assert.match(html, /https:\/\/banco\.bradesco\/html\/classic\/produtos-servicos\/cartoes\/credito\.shtm/i);
+  assert.match(html, /https:\/\/banking\.btgpactual\.com\/cartao-de-credito/i);
 });
 
 test('a interface usa 3.50% como IOF padrão', () => {
