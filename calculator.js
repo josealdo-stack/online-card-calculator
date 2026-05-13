@@ -16,51 +16,6 @@ function roundCurrency(value) {
   return Math.round((value + Number.EPSILON) * 100) / 100;
 }
 
-function slugify(value) {
-  return value
-    .normalize('NFD')
-    .replace(/[\u0300-\u036f]/g, '')
-    .replace(/[^a-zA-Z0-9]+/g, '-')
-    .replace(/^-+|-+$/g, '')
-    .toLowerCase();
-}
-
-function normalizeBankName(name) {
-  return String(name)
-    .replace(/\s*\(\*\)\s*/g, '')
-    .replace(/\s+/g, ' ')
-    .trim();
-}
-
-function parsePercentNumber(rawValue) {
-  return Number(String(rawValue).replace('%', '').replace(',', '.'));
-}
-
-function parseSpreadRanking(markdown) {
-  const text = String(markdown || '');
-  const matches = [...text.matchAll(/💳\s*(.+?)\s*(\d+,\d+%)\s*(\d+,\d+%)\s*(\d+,\d+%)\s*(Não|Sim|Cashback(?:\(\*\))?)/g)];
-
-  const ranking = matches.map((match) => {
-    const name = normalizeBankName(match[1]);
-
-    return {
-      id: slugify(name),
-      name,
-      iofPct: parsePercentNumber(match[2]),
-      spreadPct: parsePercentNumber(match[3]),
-      totalPct: parsePercentNumber(match[4]),
-      points: match[5],
-      sourceType: 'Cartão de crédito',
-    };
-  });
-
-  if (ranking.length === 0) {
-    throw new Error('A fonte online não trouxe cartões válidos para o ranking.');
-  }
-
-  return ranking;
-}
-
 function extractExchangeRate(payload) {
   const bid = Number(payload?.USDBRL?.bid);
 
@@ -107,8 +62,6 @@ if (typeof module !== 'undefined') {
   module.exports = {
     calculateEffectiveCost,
     extractExchangeRate,
-    normalizeBankName,
-    parseSpreadRanking,
     roundCurrency,
   };
 }
@@ -116,6 +69,4 @@ if (typeof module !== 'undefined') {
 if (typeof window !== 'undefined') {
   window.calculateEffectiveCost = calculateEffectiveCost;
   window.extractExchangeRate = extractExchangeRate;
-  window.normalizeBankName = normalizeBankName;
-  window.parseSpreadRanking = parseSpreadRanking;
 }
