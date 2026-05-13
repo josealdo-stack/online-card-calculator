@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Calculadora de compra nos EUA com cartão brasileiro</title>
+  <style>
+    :root {
+      color-scheme: light;
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --text: #10213a;
+      --muted: #60708a;
+      --accent: #2f6fed;
+      --accent-soft: #eaf1ff;
+      --border: #d9e2f1;
+      --good: #0e8c61;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: Inter, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: linear-gradient(180deg, #eff4ff 0%, var(--bg) 100%);
+      color: var(--text);
+    }
+
+    .page {
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 32px 20px 60px;
+    }
+
+    .hero {
+      margin-bottom: 24px;
+    }
+
+    .hero h1 {
+      margin: 0 0 12px;
+      font-size: clamp(1.9rem, 4vw, 3rem);
+      line-height: 1.05;
+    }
+
+    .hero p {
+      margin: 0;
+      font-size: 1.05rem;
+      color: var(--muted);
+      max-width: 760px;
+      line-height: 1.6;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+      gap: 18px;
+      align-items: start;
+    }
+
+    .card {
+      background: var(--card);
+      border: 1px solid var(--border);
+      border-radius: 22px;
+      padding: 22px;
+      box-shadow: 0 16px 40px rgba(16, 33, 58, 0.08);
+    }
+
+    .card h2 {
+      margin: 0 0 16px;
+      font-size: 1.15rem;
+    }
+
+    .field {
+      display: grid;
+      gap: 6px;
+      margin-bottom: 14px;
+    }
+
+    label {
+      font-weight: 600;
+      font-size: 0.95rem;
+    }
+
+    .hint {
+      color: var(--muted);
+      font-size: 0.86rem;
+      line-height: 1.45;
+    }
+
+    input,
+    select {
+      width: 100%;
+      padding: 14px 15px;
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      font-size: 1rem;
+      color: var(--text);
+      background: #fff;
+    }
+
+    input:focus,
+    select:focus {
+      outline: 2px solid rgba(47, 111, 237, 0.18);
+      border-color: var(--accent);
+    }
+
+    .summary {
+      background: var(--accent-soft);
+      border: 1px solid #cfe0ff;
+      border-radius: 18px;
+      padding: 18px;
+      margin-bottom: 18px;
+    }
+
+    .summary-label {
+      font-size: 0.92rem;
+      color: var(--muted);
+      margin-bottom: 8px;
+    }
+
+    .summary-value {
+      font-size: clamp(2rem, 5vw, 3rem);
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
+    }
+
+    .summary-sub {
+      color: var(--good);
+      font-weight: 700;
+    }
+
+    .breakdown {
+      display: grid;
+      gap: 10px;
+    }
+
+    .row {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      padding: 12px 0;
+      border-bottom: 1px solid #ebf0f8;
+    }
+
+    .row:last-child { border-bottom: 0; }
+    .row span:first-child { color: var(--muted); }
+    .row strong { font-size: 1rem; }
+
+    .formula {
+      margin-top: 18px;
+      padding: 14px;
+      border-radius: 14px;
+      background: #f8fafc;
+      color: var(--muted);
+      font-size: 0.92rem;
+      line-height: 1.55;
+    }
+
+    .pill {
+      display: inline-block;
+      padding: 6px 10px;
+      border-radius: 999px;
+      background: #eef3ff;
+      color: var(--accent);
+      font-weight: 700;
+      font-size: 0.82rem;
+      margin-bottom: 14px;
+    }
+
+    .quote-tools,
+    .bank-tools {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 10px;
+      margin-top: 8px;
+    }
+
+    .quote-button,
+    .bank-button {
+      border: 0;
+      border-radius: 12px;
+      padding: 10px 14px;
+      background: var(--accent);
+      color: #fff;
+      font-weight: 700;
+      cursor: pointer;
+    }
+
+    .quote-button:hover,
+    .bank-button:hover {
+      filter: brightness(1.05);
+    }
+
+    .quote-status,
+    .bank-status {
+      font-size: 0.86rem;
+      color: var(--muted);
+      line-height: 1.4;
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="pill">Fácil de entender</div>
+      <h1>Quanto vai custar de verdade comprar nos EUA com cartão brasileiro?</h1>
+      <p>
+        Preencha os campos abaixo e veja o custo final em reais, quanto virou taxa,
+        e qual foi o câmbio efetivo da compra. Esta versão calcula as taxas do cartão
+        e da conversão cambial — não inclui imposto de importação ou ICMS.
+      </p>
+    </section>
+
+    <section class="grid">
+      <form class="card" id="calculator-form">
+        <h2>1) Digite os valores</h2>
+
+        <div class="field">
+          <label for="itemUsd">Valor do produto (US$)</label>
+          <input id="itemUsd" name="itemUsd" type="number" min="0" step="0.01" value="100" />
+        </div>
+
+        <div class="field">
+          <label for="shippingUsd">Frete + seguro (US$)</label>
+          <input id="shippingUsd" name="shippingUsd" type="number" min="0" step="0.01" value="20" />
+        </div>
+
+        <div class="field">
+          <label for="bankPreset">Banco/cartão (opcional)</label>
+          <select id="bankPreset" name="bankPreset">
+            <option value="manual">Preencher spread manualmente</option>
+          </select>
+          <div class="hint">Você pode escolher um banco/cartão da lista online e eu preencho spread e IOF usados naquele ranking.</div>
+          <div class="bank-tools">
+            <button class="bank-button" id="fetchBanksButton" type="button">Carregar bancos online</button>
+            <div class="bank-status" id="bankStatus">Fonte pública: ranking online ainda não carregado.</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="exchangeRate">Cotação do dólar (R$)</label>
+          <input id="exchangeRate" name="exchangeRate" type="number" min="0" step="0.0001" value="5.00" />
+          <div class="hint">Use a cotação que você quer simular, ou clique para buscar a cotação atual.</div>
+          <div class="quote-tools">
+            <button class="quote-button" id="fetchRateButton" type="button">Usar cotação atual</button>
+            <div class="quote-status" id="quoteStatus">Fonte: AwesomeAPI. Ainda não carregada.</div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="spreadPct">Spread do cartão (%)</label>
+          <input id="spreadPct" name="spreadPct" type="number" min="0" step="0.01" value="4.00" />
+          <div class="hint">É o ágio que o banco adiciona sobre o dólar.</div>
+        </div>
+
+        <div class="field">
+          <label for="iofPct">IOF (%)</label>
+          <input id="iofPct" name="iofPct" type="number" min="0" step="0.01" value="3.38" />
+          <div class="hint">Se a regra do seu caso for diferente, basta ajustar.</div>
+        </div>
+
+        <div class="field">
+          <label for="fixedFeeBrl">Taxa fixa extra (R$)</label>
+          <input id="fixedFeeBrl" name="fixedFeeBrl" type="number" min="0" step="0.01" value="0" />
+          <div class="hint">Use se o banco cobrar alguma tarifa adicional.</div>
+        </div>
+      </form>
+
+      <section class="card">
+        <h2>2) Resultado</h2>
+
+        <div class="summary">
+          <div class="summary-label">Custo final estimado</div>
+          <div class="summary-value" id="totalBrl">R$ 0,00</div>
+          <div class="summary-sub" id="effectiveRate">Dólar efetivo: R$ 0,00</div>
+        </div>
+
+        <div class="breakdown">
+          <div class="row"><span>Total da compra em dólar</span><strong id="totalUsd">US$ 0,00</strong></div>
+          <div class="row"><span>Valor convertido sem taxas</span><strong id="baseBrl">R$ 0,00</strong></div>
+          <div class="row"><span>Spread do cartão</span><strong id="spreadBrl">R$ 0,00</strong></div>
+          <div class="row"><span>Subtotal antes do IOF</span><strong id="subtotalBeforeIof">R$ 0,00</strong></div>
+          <div class="row"><span>IOF</span><strong id="iofBrl">R$ 0,00</strong></div>
+          <div class="row"><span>Taxa fixa</span><strong id="fixedFeeBrl">R$ 0,00</strong></div>
+        </div>
+
+        <div class="formula">
+          Fórmula usada:<br />
+          (produto + frete) × cotação → aplica spread → aplica IOF → soma taxa fixa.<br /><br />
+          Assim fica fácil enxergar onde cada custo entrou.
+        </div>
+      </section>
+    </section>
+  </main>
+
+  <script src="./calculator.js"></script>
+  <script>
+    const fields = ['itemUsd', 'shippingUsd', 'exchangeRate', 'spreadPct', 'iofPct', 'fixedFeeBrl'];
+    const rateApiUrl = 'https://economia.awesomeapi.com.br/json/last/USD-BRL';
+    const spreadSourceUrl = 'https://r.jina.ai/http://https://www.melhorescartoes.com.br/dolar-no-cartao-de-credito-spread.html';
+
+    const currencyBRL = new Intl.NumberFormat('pt-BR', {
+      style: 'currency',
+      currency: 'BRL',
+    });
+
+    const currencyUSD = new Intl.NumberFormat('en-US', {
+      style: 'currency',
+      currency: 'USD',
+    });
+
+    const outputs = {
+      totalUsd: document.getElementById('totalUsd'),
+      baseBrl: document.getElementById('baseBrl'),
+      spreadBrl: document.getElementById('spreadBrl'),
+      subtotalBeforeIof: document.getElementById('subtotalBeforeIof'),
+      iofBrl: document.getElementById('iofBrl'),
+      fixedFeeBrl: document.getElementById('fixedFeeBrl'),
+      totalBrl: document.getElementById('totalBrl'),
+      effectiveRate: document.getElementById('effectiveRate'),
+    };
+
+    const exchangeRateInput = document.getElementById('exchangeRate');
+    const spreadInput = document.getElementById('spreadPct');
+    const iofInput = document.getElementById('iofPct');
+    const bankPresetSelect = document.getElementById('bankPreset');
+    const fetchRateButton = document.getElementById('fetchRateButton');
+    const fetchBanksButton = document.getElementById('fetchBanksButton');
+    const quoteStatus = document.getElementById('quoteStatus');
+    const bankStatus = document.getElementById('bankStatus');
+
+    let bankOptions = [];
+
+    function readForm() {
+      const values = {};
+      for (const field of fields) {
+        values[field] = document.getElementById(field).value;
+      }
+      return values;
+    }
+
+    function render() {
+      const result = window.calculateEffectiveCost(readForm());
+      outputs.totalUsd.textContent = currencyUSD.format(result.totalUsd);
+      outputs.baseBrl.textContent = currencyBRL.format(result.baseBrl);
+      outputs.spreadBrl.textContent = currencyBRL.format(result.spreadBrl);
+      outputs.subtotalBeforeIof.textContent = currencyBRL.format(result.subtotalBeforeIof);
+      outputs.iofBrl.textContent = currencyBRL.format(result.iofBrl);
+      outputs.fixedFeeBrl.textContent = currencyBRL.format(result.fixedFeeBrl);
+      outputs.totalBrl.textContent = currencyBRL.format(result.totalBrl);
+      outputs.effectiveRate.textContent = `Dólar efetivo: ${currencyBRL.format(result.effectiveRate)}`;
+    }
+
+    function setQuoteStatus(message) {
+      quoteStatus.textContent = message;
+    }
+
+    function setBankStatus(message) {
+      bankStatus.textContent = message;
+    }
+
+    function fillBankOptions(ranking) {
+      bankOptions = ranking;
+      bankPresetSelect.innerHTML = '<option value="manual">Preencher spread manualmente</option>';
+
+      for (const bank of ranking) {
+        const option = document.createElement('option');
+        option.value = bank.id;
+        option.textContent = `${bank.name} — spread ${bank.spreadPct.toFixed(2).replace('.', ',')}%`;
+        bankPresetSelect.appendChild(option);
+      }
+    }
+
+    function applySelectedBank(bankId) {
+      if (bankId === 'manual') {
+        setBankStatus('Modo manual ativo. Você pode digitar qualquer spread e IOF.');
+        return;
+      }
+
+      const selectedBank = bankOptions.find((bank) => bank.id === bankId);
+      if (!selectedBank) {
+        setBankStatus('Não encontrei esse banco na lista carregada.');
+        return;
+      }
+
+      spreadInput.value = selectedBank.spreadPct.toFixed(2);
+      iofInput.value = selectedBank.iofPct.toFixed(2);
+      render();
+      setBankStatus(`Aplicado: ${selectedBank.name}. Spread ${selectedBank.spreadPct.toFixed(2).replace('.', ',')}% e IOF ${selectedBank.iofPct.toFixed(2).replace('.', ',')}% do ranking online.`);
+    }
+
+    async function fetchLatestRate() {
+      try {
+        fetchRateButton.disabled = true;
+        fetchRateButton.textContent = 'Buscando...';
+        setQuoteStatus('Consultando a cotação atual...');
+
+        const response = await fetch(rateApiUrl, { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const payload = await response.json();
+        const rateInfo = window.extractExchangeRate(payload);
+        exchangeRateInput.value = rateInfo.rate.toFixed(4);
+        render();
+
+        const updatedAt = rateInfo.updatedAt ? ` Atualizada em ${rateInfo.updatedAt}.` : '';
+        setQuoteStatus(`Fonte: ${rateInfo.source}. Cotação carregada: R$ ${rateInfo.rate.toFixed(4)}.${updatedAt}`);
+      } catch (error) {
+        console.error(error);
+        setQuoteStatus('Não consegui carregar a cotação agora. Você ainda pode digitar manualmente.');
+      } finally {
+        fetchRateButton.disabled = false;
+        fetchRateButton.textContent = 'Atualizar cotação';
+      }
+    }
+
+    async function fetchBankSpreads() {
+      try {
+        fetchBanksButton.disabled = true;
+        fetchBanksButton.textContent = 'Carregando...';
+        setBankStatus('Buscando ranking público online de spreads...');
+
+        const response = await fetch(spreadSourceUrl, { cache: 'no-store' });
+        if (!response.ok) {
+          throw new Error(`HTTP ${response.status}`);
+        }
+
+        const markdown = await response.text();
+        const ranking = window.parseSpreadRanking(markdown);
+        const publishedTimeMatch = markdown.match(/Published Time:\s*(.+)/);
+        fillBankOptions(ranking);
+
+        const publishedText = publishedTimeMatch ? ` Publicado em ${publishedTimeMatch[1]}.` : '';
+        setBankStatus(`Fonte pública online: Melhores Cartões. ${ranking.length} opções carregadas.${publishedText}`);
+      } catch (error) {
+        console.error(error);
+        setBankStatus('Não consegui carregar a lista online agora. Você ainda pode preencher o spread manualmente.');
+      } finally {
+        fetchBanksButton.disabled = false;
+        fetchBanksButton.textContent = 'Atualizar bancos';
+      }
+    }
+
+    for (const field of fields) {
+      document.getElementById(field).addEventListener('input', render);
+    }
+
+    bankPresetSelect.addEventListener('change', (event) => applySelectedBank(event.target.value));
+    fetchRateButton.addEventListener('click', fetchLatestRate);
+    fetchBanksButton.addEventListener('click', fetchBankSpreads);
+
+    render();
+    fetchLatestRate();
+    fetchBankSpreads();
+  </script>
+</body>
+</html>
