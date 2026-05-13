@@ -79,6 +79,15 @@ test('a interface usa spread manual em vez de ranking online antigo', () => {
   assert.match(html, /Digite o spread do seu cartão manualmente/i);
 });
 
+test('a interface mostra fontes de referência e disclaimer para spread', () => {
+  const fs = require('node:fs');
+  const html = fs.readFileSync(require('node:path').join(__dirname, '..', 'index.html'), 'utf8');
+  assert.match(html, /Confira seu emissor antes de confiar no spread/i);
+  assert.match(html, /https:\/\/nubank\.com\.br\/contratos\/termos-condicoes-cartao-credito-nubank/i);
+  assert.match(html, /https:\/\/www\.c6bank\.com\.br\/cartao-de-credito\//i);
+  assert.match(html, /https:\/\/inter\.co\/pra-voce\/cartoes\//i);
+});
+
 test('a interface usa 3.50% como IOF padrão', () => {
   const fs = require('node:fs');
   const html = fs.readFileSync(require('node:path').join(__dirname, '..', 'index.html'), 'utf8');
